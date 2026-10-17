@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#16314d">
+  <title>Keyclash</title>
+  <meta name="description" content="A typing war game. Type the words on the map to take land, break enemy lines, and hold your ground for sixty seconds.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2 29 9.5v13L16 30 3 22.5v-13Z' fill='%23ffc53d' stroke='%231b2433' stroke-width='2.5'/%3E%3Ctext x='16' y='22' font-size='15' font-family='sans-serif' font-weight='900' text-anchor='middle' fill='%231b2433'%3EK%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="app">
+    <header class="bar">
+      <div class="logo" aria-label="Keyclash"><span class="logo-hex">K</span>KEY<span>CLASH</span></div>
+      <div class="bar-right">
+        <div id="streakChip" class="chip streak-chip hidden" title="Daily battle streak">🔥 <b id="streakCount">0</b></div>
+        <div class="chip rank-chip" title="Your rank">
+          <span id="rankIcon" class="rank-icon">🪖</span>
+          <span class="rank-text"><b id="rankName">Recruit</b><span class="xp-bar"><i id="xpFill"></i></span></span>
+        </div>
+        <button id="soundBtn" class="icon-btn" type="button" aria-label="Mute sound">🔊</button>
+        <button id="helpBtn" class="icon-btn" type="button" aria-label="How to play">?</button>
+      </div>
+    </header>
+
+    <section class="hud" aria-label="Score">
+      <div class="side side-0">
+        <div class="crest">🏰</div>
+        <div class="side-info">
+          <div id="name0" class="side-name">You</div>
+          <div class="side-score"><b id="score0">0</b><span>pts</span></div>
+          <div id="note0" class="side-note">&nbsp;</div>
+        </div>
+      </div>
+      <div class="clock">
+        <div id="timer" class="timer" role="timer">1:00</div>
+        <div class="tug" aria-hidden="true"><span id="tug0"></span><span id="tug1"></span></div>
+      </div>
+      <div class="side side-1">
+        <div class="side-info">
+          <div id="name1" class="side-name">Nova</div>
+          <div class="side-score"><b id="score1">0</b><span>pts</span></div>
+          <div id="note1" class="side-note">&nbsp;</div>
+        </div>
+        <div class="crest">🏯</div>
+      </div>
+    </section>
+
+    <main class="field-wrap">
+      <div id="field" class="field">
+        <svg id="map" role="img" aria-label="Battle map"></svg>
+        <div class="clouds" aria-hidden="true"><i></i><i></i><i></i></div>
+        <div id="fx" class="fx-layer" aria-hidden="true"></div>
+        <div id="bountyBanner" class="bounty-banner hidden">💰 Bounty up! <b id="bountyTime">8</b>s</div>
+        <div id="coach" class="coach hidden" role="status"><b id="coachTitle"></b><span id="coachText"></span></div>
+        <div id="countdown" class="countdown hidden" aria-live="assertive"><span id="countdownNum">3</span></div>
+      </div>
+    </main>
+
+    <section class="command">
+      <div id="chain" class="chain" title="Chain: keep words coming within 3 seconds">
+        <svg class="chain-ring" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="28" class="ring-track"/><circle id="chainRing" cx="32" cy="32" r="28" class="ring-fill"/></svg>
+        <span class="chain-flame">🔥</span>
+        <b id="chainCount" class="chain-count">0</b>
+        <small id="chainLabel" class="chain-label">chain</small>
+      </div>
+      <label class="typer" for="typeInput">
+        <span id="typeLine" class="type-line"><span class="type-placeholder">Pick a mode to start</span></span>
+        <input id="typeInput" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" aria-label="Type a word from the map" disabled>
+        <span id="typeHint" class="type-hint">&nbsp;</span>
+      </label>
+      <div class="drops" title="Airdrops: land on open ground two hexes away">
+        <div id="dropIcons" class="drop-icons"><i>🪂</i><i>🪂</i></div>
+        <small id="dropLabel" class="drop-label">airdrops</small>
+      </div>
+    </section>
+  </div>
+
+  <div class="overlay" id="menuOverlay">
+    <div class="sheet menu-sheet">
+      <div class="menu-logo"><span class="logo-hex big">K</span><div>KEY<span>CLASH</span></div></div>
+      <p class="menu-sub">Type the words on the map to take it.</p>
+      <button id="playBtn" class="btn btn-gold btn-huge" type="button">Play</button>
+      <div class="pace" role="radiogroup" aria-label="Bot pace">
+        <span>Bot pace</span>
+        <button type="button" role="radio" data-level="chill">Chill</button>
+        <button type="button" role="radio" data-level="steady">Steady</button>
+        <button type="button" role="radio" data-level="fierce">Fierce</button>
+      </div>
+      <div class="menu-row">
+        <button id="dailyBtn" class="btn btn-card" type="button"><span class="card-icon">📅</span><span><b id="dailyTitle">Daily battle</b><small id="dailySub">Same map for everyone</small></span></button>
+        <button id="friendBtn" class="btn btn-card" type="button"><span class="card-icon">🤝</span><span><b>Play a friend</b><small>Share a room code</small></span></button>
+      </div>
+      <div id="menuRecord" class="menu-record"></div>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="roomOverlay">
+    <div class="sheet room-sheet">
+      <button class="close-btn" id="closeRoom" type="button" aria-label="Close">×</button>
+      <h2>Play a friend</h2>
+      <label class="field-label" for="playerName">Your name</label>
+      <input class="text-input" id="playerName" maxlength="18" autocomplete="nickname">
+      <button id="createRoom" class="btn btn-gold btn-wide" type="button">Create a room</button>
+      <div class="or">or join one</div>
+      <div class="join-line">
+        <input class="text-input code-input" id="roomCode" maxlength="5" placeholder="CODE" autocomplete="off" aria-label="Room code">
+        <button id="joinRoom" class="btn" type="button">Join</button>
+      </div>
+      <div id="roomMessage" class="room-message" role="alert"></div>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="waitingOverlay">
+    <div class="sheet wait-sheet">
+      <h2>Waiting for your rival</h2>
+      <p>Send them this code or the link. The battle starts when they join.</p>
+      <div id="codeDisplay" class="code-display">-----</div>
+      <button id="copyCode" class="btn btn-gold btn-wide" type="button">Copy invite link</button>
+      <button id="cancelWait" class="link-btn" type="button">Leave room</button>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="resultOverlay">
+    <div class="sheet result-sheet">
+      <div id="resultStamp" class="stamp">Victory</div>
+      <div class="final">
+        <div class="final-side side-0"><b id="final0">0</b><small id="finalName0">You</small></div>
+        <span class="final-vs">vs</span>
+        <div class="final-side side-1"><b id="final1">0</b><small id="finalName1">Nova</small></div>
+      </div>
+      <div id="resultStats" class="result-stats"></div>
+      <div class="xp-gain">
+        <div class="xp-gain-line"><span id="xpRank">Recruit</span><b id="xpEarned">+0 XP</b></div>
+        <div class="xp-bar big"><i id="xpGainFill"></i></div>
+        <div id="rankUp" class="rank-up hidden"></div>
+      </div>
+      <div class="result-actions">
+        <button id="playAgain" class="btn btn-gold btn-wide" type="button">Play again</button>
+        <button id="shareBtn" class="btn btn-wide hidden" type="button">Share result</button>
+      </div>
+      <button id="menuBtn" class="link-btn" type="button">Main menu</button>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="helpOverlay">
+    <div class="sheet help-sheet">
+      <button id="closeHelp" class="close-btn" type="button" aria-label="Close">×</button>
+      <h2>How to play</h2>
+      <ul class="rules">
+        <li><span>⌨️</span><p><b>Type a word on the map</b> next to your land to march on it. No clicking needed.</p></li>
+        <li><span>🛡️</span><p><b>Dots mean strength.</b> Strong hexes take a few words. Type your own border words to dig in.</p></li>
+        <li><span>🔥</span><p><b>Keep a chain</b> by typing a word every 3 seconds. At 3 you hit twice as hard, at 6 each capture spills onto open land.</p></li>
+        <li><span>🏰</span><p><b>Stay connected.</b> Land cut off from your castle scores nothing. Castles can't fall.</p></li>
+        <li><span>💰</span><p><b>Grab bounties</b> for 2 extra points that stay with the hex. Every 5 words earns an <b>airdrop 🪂</b> that takes open land two steps away in one word.</p></li>
+      </ul>
+      <button id="gotIt" class="btn btn-gold btn-wide" type="button">Got it</button>
+    </div>
+  </div>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

@@ -651,7 +651,7 @@ function showResult() {
   setText('finalName0', list[player]);
   setText('finalName1', list[rival()]);
   $('resultStats').replaceChildren(...[
-    [wpm, 'WPM', records.wpm], [`${acc}%`, 'accuracy', false], [bestChain, 'best chain', records.chain], [mine.tiles, 'hexes', false]
+    [wpm, 'battle WPM', records.wpm], [`${acc}%`, 'accuracy', false], [bestChain, 'best chain', records.chain], [mine.tiles, 'hexes', false]
   ].map(([value, label, record]) => {
     const cell = document.createElement('div');
     if (record) cell.className = 'record';
@@ -716,7 +716,7 @@ function renderMenu() {
     ? `${doneToday.won ? 'Won' : doneToday.tied ? 'Drew' : 'Lost'} ${doneToday.mine}–${doneToday.theirs}. New map tomorrow.`
     : streak ? `🔥 ${streak} day streak. Keep it alive.` : 'Same map for everyone today');
   $('dailyBtn').classList.toggle('done', Boolean(doneToday));
-  setText('menuRecord', prefs.played ? `${prefs.wins} wins in ${prefs.played} battles · best ${prefs.bestWpm} WPM · best chain ${prefs.bestChain}` : '');
+  setText('menuRecord', prefs.played ? `${prefs.wins} win${prefs.wins === 1 ? '' : 's'} in ${prefs.played} battle${prefs.played === 1 ? '' : 's'} · best ${prefs.bestWpm} battle WPM · best chain ${prefs.bestChain}` : '');
   renderRank();
 }
 

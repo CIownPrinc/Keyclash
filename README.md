@@ -12,7 +12,9 @@ Requires Node.js 20 or newer. No dependencies.
 npm start
 ```
 
-Open `http://localhost:3000`. For a two-player match choose **Play a friend**, create a room, and send the invite link to someone who can reach the same server. Set `PORT` to change the port. `COUNTDOWN_MS` overrides the 3-second pre-battle countdown (the tests set it to `0`).
+Open `http://localhost:3000` on a computer; the game is built for a physical keyboard. The WPM shown after a battle is "battle WPM": it includes the time spent picking targets, so it runs lower than a plain typing test.
+
+For a two-player match choose **Play a friend**, create a room, and send the invite link to someone who can reach the same server. Set `PORT` to change the port. `COUNTDOWN_MS` overrides the 3-second pre-battle countdown (the tests set it to `0`).
 
 ```sh
 npm test

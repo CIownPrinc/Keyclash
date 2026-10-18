@@ -2,6 +2,8 @@
 
 A typing war game. Each hex on the island map has a word on it. Type a word next to your land to march on it, break the enemy's lines, and hold the most valuable ground when the 60-second clock runs out.
 
+**Play online:** https://keyclash-arena.clownprinc.chatgpt.site — create a room and share its invite link. Anyone with the link can play.
+
 Play a quick battle against the bot Nova (chill, steady, or fierce), the daily battle (the same seeded map for everyone, with a streak and a shareable result), or a live 1v1 room with a friend.
 
 ## Run
@@ -44,3 +46,5 @@ npm test
 | `server.mjs` | Static files and the authoritative room API. |
 
 The server is authoritative: it checks every word, keeps the random seed to itself, refuses strikes faster than 250 WPM, and rate-limits room creation per address. Room state lives in the server process. Restarting the server ends active matches, and rooms close after 30 idle minutes. Refreshing the page mid-match rejoins the same seat. Progress (XP, streak, bests) is stored in the browser.
+
+The hosted version lives in [`site/`](site/). It uses the same game client and rules with a Cloudflare D1-backed room API, so active rooms persist across worker restarts. The local Node server remains useful for development and tests. Production deployment was verified with `site/scripts/smoke.mjs` against the public URL.

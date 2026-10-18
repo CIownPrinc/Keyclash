@@ -28,9 +28,10 @@ async function openRoom() {
 }
 
 test('room creation, joining, and authoritative strikes', async () => {
-  const host = await request('/api/create', { name: 'Alpha' });
+  const host = await request('/api/create', { name: 'Player Alpha' });
   assert.equal(host.status, 200);
   assert.equal(host.value.status, 'waiting');
+  assert.equal(host.value.players[0], 'Player Alpha');
   const guest = await request('/api/join', { code: host.value.code, name: 'Beta' });
   assert.equal(guest.status, 200);
   assert.equal(guest.value.status, 'playing');

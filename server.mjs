@@ -65,7 +65,7 @@ function state(room) {
     now
   };
 }
-function cleanName(value) { return String(value || 'Player').replace(/[p{C}<>]/gu, '').trim().slice(0, 18) || 'Player'; }
+function cleanName(value) { return String(value || 'Player').replace(/[\p{C}<>]/gu, '').trim().slice(0, 18) || 'Player'; }
 function limitRate(req) {
   const ip = req.socket.remoteAddress ?? 'unknown';
   const now = Date.now();

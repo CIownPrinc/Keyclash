@@ -56,7 +56,7 @@ let lineKey = '';
 const localFx = new Map();
 
 const now = () => Date.now() + clockOffset;
-const playing = () => mode !== 'preview' && !game.finished;
+const playing = () => mode !== 'preview' && (mode !== 'online' || match > 0) && !game.finished;
 const live = () => playing() && now() >= game.startedAt;
 const againstBot = () => mode === 'bot' || mode === 'daily';
 const rival = () => 1 - player;
@@ -169,7 +169,7 @@ function renderHud() {
     setText(`name${side}`, list[p]);
     const scoreEl = $(`score${side}`);
     if (scoreEl.textContent !== String(scores[p].points)) { scoreEl.textContent = scores[p].points; restart(scoreEl, 'bump'); }
-    const away = mode === 'online' && room?.connected && !room.connected[p];
+    const away = mode === 'online' && room?.players?.length === 2 && room?.connected && !room.connected[p];
     const note = away ? 'Disconnected' : scores[p].cutOff ? `${scores[p].cutOff} cut off!` : mode === 'preview' ? ' ' : `${scores[p].tiles} ${scores[p].tiles === 1 ? 'hex' : 'hexes'}`;
     setText(`note${side}`, note);
     $(`tug${side}`).style.flexGrow = String(Math.max(1, scores[p].points));
@@ -235,7 +235,7 @@ function renderWord(line, word, done) {
 }
 
 function renderClock(t) {
-  const left = mode === 'preview' ? DURATION : Math.min(DURATION, Math.max(0, game.endsAt - t));
+  const left = mode === 'preview' || (mode === 'online' && match === 0) ? DURATION : Math.min(DURATION, Math.max(0, game.endsAt - t));
   const sec = Math.ceil(left / 1000);
   setText('timer', `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`);
   $('timer').classList.toggle('urgent', live() && sec <= 10);
@@ -545,6 +545,7 @@ function showWaiting(code) {
   setText('copyCode', 'Copy invite link');
   hideOverlays();
   show('waitingOverlay');
+  render();
 }
 
 async function resumeSeat(seat) {
@@ -747,7 +748,7 @@ function tick() {
     advance(game, now());
     if (finish(game, now())) endBattle();
   }
-  if (mode === 'online' && !game.finished && now() >= game.endsAt) poll();
+  if (mode === 'online' && match > 0 && !game.finished && now() >= game.endsAt) poll();
   processEvents();
   render();
 }

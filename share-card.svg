@@ -11,8 +11,8 @@
   <circle cx="1010" cy="80" r="250" fill="#ffc53d" opacity=".08"/>
   <g transform="translate(82 84)">
     <path d="M30 0 60 17v35L30 69 0 52V17Z" fill="#142b42" stroke="#ffd15f" stroke-width="4" stroke-linejoin="round"/>
-    <g transform="rotate(-18 25 31)"><rect x="14" y="21" width="22" height="19" rx="4" fill="#71d8fa" stroke="#172536" stroke-width="2"/><path d="M20 26v9m0-5h6m0-4v9" fill="none" stroke="#172536" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g>
-    <g transform="rotate(18 39 35)"><rect x="29" y="27" width="22" height="19" rx="4" fill="#ff916c" stroke="#172536" stroke-width="2"/><path d="M35 32v9m0-5h6m0-4v9" fill="none" stroke="#172536" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g>
+    <g transform="rotate(-18 25 31)"><rect x="14" y="21" width="22" height="19" rx="4" fill="#71d8fa" stroke="#172536" stroke-width="2"/><path d="M20 26v9m7-9-7 4.5 7 4.5" fill="none" stroke="#172536" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g>
+    <g transform="rotate(18 39 35)"><rect x="29" y="27" width="22" height="19" rx="4" fill="#ff916c" stroke="#172536" stroke-width="2"/><path d="M43 29.5C41.7 27.8 39.9 27 38 27c-3.5 0-6 3-6 6.5s2.5 6.5 6 6.5c1.9 0 3.7-.8 5-2.5" fill="none" stroke="#172536" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g>
     <path d="m32 18 2.5 6 6 2.5-6 2.5-2.5 6-2.5-6-6-2.5 6-2.5Z" fill="#fff2a9" stroke="#a97712" stroke-width="1" stroke-linejoin="round"/>
     <text x="78" y="43" font-family="Arial,sans-serif" font-size="30" font-weight="900" letter-spacing="2" fill="#fff3cf">KEY<tspan fill="#ffc53d">CLASH</tspan></text>
     <text x="80" y="65" font-family="Arial,sans-serif" font-size="10" font-weight="800" letter-spacing="2.3" fill="#cbdce5">WORDS WIN GROUND</text>

@@ -13,7 +13,6 @@ export const COMMANDERS = [
   { id: 'quartermaster', name: 'Quartermaster', icon: '📦', description: 'Keep the front moving: earn airdrops every 4 words instead of 5.', tradeoff: 'No attack bonus' },
   { id: 'warden', name: 'Warden', icon: '🛡', description: 'Hold the line: reinforcements add 2 strength, up to 4. Airdrops every 6 words.', tradeoff: 'Fewer supply drops' }
 ];
-export const commanderOf = (game, player) => COMMANDERS.find(c => c.id === game.commanders?.[player]) ?? COMMANDERS[0];
 
 export const CONTRACTS = [
   { id: 'relic-run', name: 'Relic Run', icon: '✦', description: 'Supply shrine hexes for +2 each. Both shrines are marked in gold.', detail: 'Each supplied shrine adds 2 points (max +4).' },

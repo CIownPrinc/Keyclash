@@ -89,7 +89,8 @@ function addPlayer(room, name, commander) {
 }
 function startMatch(room) {
   const map = Number.isInteger(room.map) ? (room.map + room.match) % MAPS.length : undefined;
-  room.game = createGame({ startAt: Date.now() + countdown, map, commanders: room.players.map(p => p.commander) });
+  const commanders = room.players.map(p => COMMANDERS.some(c => c.id === p.commander) ? p.commander : 'vanguard');
+  room.game = createGame({ startAt: Date.now() + countdown, map, commanders });
   room.match++;
   room.rematch.clear();
 }

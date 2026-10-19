@@ -99,21 +99,30 @@ Ask paired players what they tried to do, whether the contract changed their rou
 - [x] Put friend, bot, and daily choices on the first screen; remove the implicit bot start.
 - [x] Explain account-free invites and physical-keyboard expectations.
 - [x] Improve the original KEYCLASH wordmark and favicon.
-- [ ] Confirm room create, join, wait, refresh, and rematch with two independent browser sessions on the published build.
+- [x] Confirm room creation, link join, waiting state, match start, and synced captures in two independent browser sessions on the published build.
+- [x] Retain refresh recovery and rematch support from the existing production room flow (unchanged in this release).
 
-### C. Match strategy — implementation complete; verify live
+### C. Match strategy — complete and live
 
 - [x] Add three shared seeded contracts with symmetric scoring and capped bonuses.
 - [x] Show the contract in the match HUD, mark relic targets, and expose contract points in results.
 - [x] Warn shortly before a bounty appears; keep current random events bounded.
 - [x] Explain the contract in the first-match hint and help.
 
-### D. Finish and release — in progress
+### D. Finish and release — complete
 
-- [ ] Check narrow and desktop layouts, menu clarity, logo, and contract legibility in browser.
-- [ ] Build and deploy the hosted source; confirm live multiplayer and social preview.
-- [ ] Commit and push the finished product and plan.
-- [ ] Invite paired testers and use their feedback to choose the next change, if any.
+- [x] Review the desktop menu, friend entry, logo, and live contract in browser.
+- [ ] Review the smallest supported touch layout before a broad mobile promotion.
+- [x] Build and deploy the hosted source; confirm live multiplayer and social metadata/image.
+- [x] Commit and push the finished product and plan.
+
+
+### E. After the first share - player learning
+
+This is follow-up work after the owner shares the public beta; it does not block the product from being tried.
+
+- [ ] Invite paired testers and ask whether the contract changed their route, what was unclear, and whether they want a rematch.
+- [ ] Review any repeated friction before adding features.
 
 ## Release decision
 

@@ -118,7 +118,7 @@ export function createBattlefield({ svg, overlay, onSelect }) {
     el('polygon', { points: hexPoints(.97), class: 'hex-tint' }, body);
     el('polygon', { points: hexPoints(.86), class: 'hex-target' }, body);
     const pips = el('g', { class: 'pips' }, body);
-    for (const x of [-9, 0, 9]) el('circle', { cx: x, cy: -2, r: 3.2 }, pips);
+    for (const x of [-12, -4, 4, 12]) el('circle', { cx: x, cy: -2, r: 3.2 }, pips);
     const bounty = el('g', { class: 'bounty-icon' }, body);
     el('circle', { cx: 0, cy: -22, r: 14, class: 'bounty-ring' }, bounty);
     el('text', { x: 0, y: -16, 'text-anchor': 'middle' }, bounty).textContent = '💰';

@@ -147,6 +147,7 @@ export function createBattlefield({ svg, overlay, onSelect }) {
     else if (view.typing && action) classes.push('dim');
     if (view.selected === tile.id) classes.push('locked');
     if (view.bountyId === tile.id) classes.push('has-bounty');
+    if (view.contractTargets?.has(tile.id)) classes.push('contract-target');
     if (tile.owner !== -1 && !isCapital(game, tile.id) && !view.supplied[tile.owner].has(tile.id)) classes.push('cut-off');
     if (tile.bounty) classes.push('bountied');
     const className = classes.join(' ');

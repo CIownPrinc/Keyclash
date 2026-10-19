@@ -71,8 +71,8 @@ button {
 .logo {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font: 28px var(--display);
+  gap: 3px;
+  font: 27px var(--display);
   color: var(--paper);
   letter-spacing: .5px;
 }
@@ -81,6 +81,16 @@ button {
 .menu-logo span {
   color: var(--gold);
 }
+.logo > span:first-of-type { color: var(--paper); }
+
+.logo-mark { width: 38px; height: 40px; margin-right: 4px; overflow: visible; }
+.logo-mark.big { width: 64px; height: 64px; margin-right: 0; }
+.mark-hex { fill: #142b42; stroke: #ffd15f; stroke-width: 3; stroke-linejoin: round; }
+.mark-key { stroke: #172536; stroke-width: 2; }
+.mark-blue { fill: #71d8fa; }
+.mark-coral { fill: #ff916c; }
+.mark-glyph { fill: none; stroke: #172536; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.mark-spark { fill: #fff2a9; stroke: #a97712; stroke-width: 1; stroke-linejoin: round; }
 
 .logo-hex {
   width: 34px;
@@ -571,6 +581,12 @@ button {
 .has-bounty .hex-base {
   stroke: var(--gold);
   stroke-width: 4;
+}
+
+.contract-target .hex-base {
+  stroke: #fff1a7;
+  stroke-width: 4;
+  stroke-dasharray: 5 3;
 }
 
 .label {
@@ -1136,12 +1152,16 @@ button {
   align-items: center;
   justify-content: center;
   gap: 12px;
-  font: 52px/1 var(--display);
+  font: 50px/1 var(--display);
+  gap: 13px;
 }
 
-.menu-logo .logo-hex {
+.menu-logo .logo-mark {
   animation: spin-in .7s cubic-bezier(.2, 1.4, .4, 1);
 }
+.menu-logo div { display: flex; flex-direction: column; align-items: flex-start; gap: 0; }
+.menu-logo div > span { color: var(--gold-deep); }
+.menu-logo small { margin-top: 4px; font: 800 10px/1 'Rubik', sans-serif; letter-spacing: 2.2px; color: var(--muted); }
 
 .device-note {
   display: none;
@@ -1163,6 +1183,27 @@ button {
   margin: 10px 0 20px !important;
   font-size: 16px;
 }
+
+.contract-strip {
+  width: min(100%, 860px);
+  min-height: 56px;
+  margin: 0 auto;
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  border: 2px solid #d6a92d;
+  border-radius: 14px;
+  color: #fff7dc;
+  background: linear-gradient(100deg, #334c70, #263c5c);
+  box-shadow: 0 3px 0 #172a43;
+}
+.contract-strip.hidden { display: none; }
+.contract-icon { color: #ffd66a; font-size: 23px; line-height: 1; }
+.contract-copy { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.contract-copy b { font: 18px/1.1 var(--display); color: #ffe29a; }
+.contract-copy small { font-size: 12px; line-height: 1.25; }
+.contract-tag { margin-left: auto; font-size: 9px; font-weight: 900; letter-spacing: 1px; color: #c2cce0; white-space: nowrap; }
 
 .btn {
   border: 3px solid var(--ink);
@@ -1238,6 +1279,25 @@ button {
   grid-template-columns: 1fr 1fr;
   gap: 10px;
 }
+
+.menu-modes { display: grid; gap: 9px; }
+.mode-card {
+  width: 100%;
+  min-height: 61px;
+  padding: 9px 13px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+}
+.mode-card > span:nth-child(2) { display: flex; flex: 1; flex-direction: column; gap: 2px; }
+.mode-card b { font: 19px/1.1 var(--display); }
+.mode-card small { font-size: 12px; font-weight: 600; color: #5f5a50; }
+.mode-icon { width: 31px; text-align: center; font-size: 23px; color: #a67500; }
+.mode-arrow { font-size: 20px; }
+.mode-primary { background: #ffdf82; border-color: #8b6511; }
+.mode-primary:hover { background: #ffe9aa; }
+.room-intro { font-size: 14px; }
 
 .btn-card {
   display: flex;
@@ -1430,7 +1490,7 @@ button {
 
 .result-stats {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 8px;
   margin-bottom: 16px;
 }
@@ -1449,6 +1509,7 @@ button {
 .result-stats div:nth-child(2) { animation-delay: .08s; }
 .result-stats div:nth-child(3) { animation-delay: .16s; }
 .result-stats div:nth-child(4) { animation-delay: .24s; }
+.result-stats div:nth-child(5) { animation-delay: .32s; }
 
 .result-stats b {
   font: 24px/1.1 var(--display);
@@ -1631,12 +1692,16 @@ button {
     font-size: 18px;
   }
 
-  .menu-row {
-    grid-template-columns: 1fr;
-  }
+  .contract-strip { padding: 7px 9px; gap: 7px; }
+  .contract-copy b { font-size: 16px; }
+  .contract-copy small { font-size: 10px; }
+  .contract-tag { font-size: 8px; letter-spacing: .5px; }
+  .menu-sheet { padding: 22px 18px 20px; }
+  .mode-card { min-height: 56px; }
+  .mode-card b { font-size: 17px; }
 
   .result-stats {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 
   .countdown span {

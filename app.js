@@ -1,5 +1,5 @@
 import {
-  createGame, strike, actionFor, isAirdrop, matchingTiles, normalize, score, supplied, finish, advance, chainAt,
+  createGame, strike, actionFor, isAirdrop, matchingTiles, normalize, score, supplied, finish, advance, chainAt, CONTRACTS,
   hasBounty, nextRandom, TERRAIN, DURATION, COUNTDOWN, CHAIN_WINDOW, RALLY_CHAIN, BLITZ_CHAIN, STRIKES_PER_AIRDROP
 } from './game.js';
 import { createBattlefield } from './map.js';
@@ -14,7 +14,7 @@ const input = $('typeInput');
 const POLL_INTERVAL = 350;
 const BOT_NAME = 'Nova';
 const COACH = {
-  start: ['Type a word', 'Any word with a white outline is next to your land. Just start typing it.'],
+  start: ['Type a word', 'Any white outline is in reach. Your shared round contract above the map shows the bonus route worth chasing.'],
   strength: ['Tough ground', 'Dots show strength. Every word knocks one off.'],
   rally: ['Rally!', 'Three in a row. Your words now hit twice as hard. Keep the chain going.'],
   blitz: ['Blitz!', 'Six in a row. Captures now spill onto open land next door.'],
@@ -152,14 +152,24 @@ function render() {
     typing: typed.length > 0,
     selected,
     bountyId: game.bountyId !== null && hasBounty(game, game.bountyId, t) ? game.bountyId : null,
+    contractTargets: new Set(game.contract === 0 ? game.tiles.filter(tile => tile.terrain === 'shrine').map(tile => tile.id) : []),
     supplied: [supplied(game, 0), supplied(game, 1)],
     names: names()
   });
   renderHud();
+  renderContract();
   renderChain(t);
   renderTypeLine(aimed, typed);
   renderInput();
   renderClock(t);
+}
+
+function renderContract() {
+  const contract = CONTRACTS[game.contract] ?? CONTRACTS[0];
+  setText('contractIcon', contract.icon);
+  setText('contractName', contract.name);
+  setText('contractDescription', contract.description);
+  $('contractStrip').classList.toggle('hidden', mode === 'preview' || (mode === 'online' && match === 0));
 }
 
 function renderHud() {
@@ -242,8 +252,11 @@ function renderClock(t) {
   if (live() && sec <= 5 && sec !== lastSecond && sec > 0) play('tick');
   lastSecond = sec;
   const bountyLive = game.bountyId !== null && hasBounty(game, game.bountyId, t) && live();
-  $('bountyBanner').classList.toggle('hidden', !bountyLive);
+  const bountySoon = !bountyLive && live() && t < game.nextBountyAt && game.nextBountyAt - t <= 3000;
+  $('bountyBanner').classList.toggle('hidden', !bountyLive && !bountySoon);
+  setText('bountyLabel', bountyLive ? '💰 Bounty up!' : 'Bounty drop in');
   if (bountyLive) setText('bountyTime', String(Math.ceil((game.bountyUntil - t) / 1000)));
+  else if (bountySoon) setText('bountyTime', String(Math.ceil((game.nextBountyAt - t) / 1000)));
   if (bountyLive && game.bountyId !== lastBountyId) { play('bounty'); coach('bounty'); }
   lastBountyId = bountyLive ? game.bountyId : null;
   renderCountdown(t);
@@ -604,7 +617,7 @@ function startBattle(kind) {
   room = null;
   clearEntry();
   hideOverlays();
-  hint(kind === 'daily' ? `Daily battle #${daily.number}` : `${BOT_NAME} is on ${botLevel} pace`);
+  hint(kind === 'daily' ? `Daily island #${daily.number}` : `${BOT_NAME} is on ${botLevel} pace`);
   input.disabled = true;
   render();
   scheduleBot();
@@ -652,7 +665,7 @@ function showResult() {
   setText('finalName0', list[player]);
   setText('finalName1', list[rival()]);
   $('resultStats').replaceChildren(...[
-    [wpm, 'battle WPM', records.wpm], [`${acc}%`, 'accuracy', false], [bestChain, 'best chain', records.chain], [mine.tiles, 'hexes', false]
+    [wpm, 'battle WPM', records.wpm], [`${acc}%`, 'accuracy', false], [bestChain, 'best chain', records.chain], [mine.tiles, 'hexes', false], [`+${mine.contractBonus}`, 'contract pts', false]
   ].map(([value, label, record]) => {
     const cell = document.createElement('div');
     if (record) cell.className = 'record';
@@ -712,11 +725,13 @@ function renderMenu() {
   const daily = dailyInfo();
   const doneToday = prefs.lastDaily === daily.key && prefs.daily;
   const streak = liveStreak(prefs, daily.key);
-  setText('dailyTitle', `Daily battle #${daily.number}`);
+  setText('dailyTitle', `Daily island #${daily.number}`);
   setText('dailySub', doneToday
     ? `${doneToday.won ? 'Won' : doneToday.tied ? 'Drew' : 'Lost'} ${doneToday.mine}–${doneToday.theirs}. New map tomorrow.`
     : streak ? `🔥 ${streak} day streak. Keep it alive.` : 'Same map for everyone today');
   $('dailyBtn').classList.toggle('done', Boolean(doneToday));
+  const roomText = $('friendBtn').querySelector('small');
+  if (roomText) roomText.textContent = 'Create a room or join by link. No account.';
   setText('menuRecord', prefs.played ? `${prefs.wins} win${prefs.wins === 1 ? '' : 's'} in ${prefs.played} battle${prefs.played === 1 ? '' : 's'} · best ${prefs.bestWpm} battle WPM · best chain ${prefs.bestChain}` : '');
   renderRank();
 }

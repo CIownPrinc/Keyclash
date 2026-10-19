@@ -4,15 +4,26 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#16314d">
-  <title>Keyclash</title>
-  <meta name="description" content="A typing war game. Type the words on the map to take land, break enemy lines, and hold your ground for sixty seconds.">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2 29 9.5v13L16 30 3 22.5v-13Z' fill='%23ffc53d' stroke='%231b2433' stroke-width='2.5'/%3E%3Ctext x='16' y='22' font-size='15' font-family='sans-serif' font-weight='900' text-anchor='middle' fill='%231b2433'%3EK%3C/text%3E%3C/svg%3E">
+  <title>KEYCLASH — Words win ground</title>
+  <meta name="description" content="A fast typing strategy game. Capture hexes, chase a shared round objective, and beat a friend in 60 seconds.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://keyclash-arena.clownprinc.chatgpt.site/">
+  <meta property="og:title" content="KEYCLASH — Words win ground">
+  <meta property="og:description" content="Type to command the map. Make a plan. Beat your friend in 60 seconds.">
+  <meta property="og:image" content="https://keyclash-arena.clownprinc.chatgpt.site/share-card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="KEYCLASH — Words win ground">
+  <meta name="twitter:description" content="Capture hexes, chase the round objective, and beat a friend in 60 seconds.">
+  <meta name="twitter:image" content="https://keyclash-arena.clownprinc.chatgpt.site/share-card.png">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
   <div class="app">
     <header class="bar">
-      <div class="logo" aria-label="Keyclash"><span class="logo-hex">K</span>KEY<span>CLASH</span></div>
+      <div class="logo" aria-label="Keyclash"><svg class="logo-mark" viewBox="0 0 64 64" aria-hidden="true"><path class="mark-hex" d="M32 3 58 18v28L32 61 6 46V18Z"/><g transform="rotate(-18 25 31)"><rect class="mark-key mark-blue" x="14" y="21" width="22" height="19" rx="4"/><path class="mark-glyph" d="M20 26v9m0-5h6m0-4v9"/></g><g transform="rotate(18 39 35)"><rect class="mark-key mark-coral" x="29" y="27" width="22" height="19" rx="4"/><path class="mark-glyph" d="M35 32v9m0-5h6m0-4v9"/></g><path class="mark-spark" d="m32 18 2.5 6 6 2.5-6 2.5-2.5 6-2.5-6-6-2.5 6-2.5Z"/></svg><span>KEY</span><span>CLASH</span></div>
       <div class="bar-right">
         <div id="streakChip" class="chip streak-chip hidden" title="Daily battle streak">🔥 <b id="streakCount">0</b></div>
         <div class="chip rank-chip" title="Your rank">
@@ -47,12 +58,18 @@
       </div>
     </section>
 
+    <section id="contractStrip" class="contract-strip" aria-label="Round objective">
+      <span id="contractIcon" class="contract-icon" aria-hidden="true">✦</span>
+      <span class="contract-copy"><b id="contractName">Relic Run</b><small id="contractDescription"></small></span>
+      <span class="contract-tag">ROUND CONTRACT</span>
+    </section>
+
     <main class="field-wrap">
       <div id="field" class="field">
         <svg id="map" role="img" aria-label="Battle map"></svg>
         <div class="clouds" aria-hidden="true"><i></i><i></i><i></i></div>
         <div id="fx" class="fx-layer" aria-hidden="true"></div>
-        <div id="bountyBanner" class="bounty-banner hidden">💰 Bounty up! <b id="bountyTime">8</b>s</div>
+        <div id="bountyBanner" class="bounty-banner hidden"><span id="bountyLabel">Bounty</span> <b id="bountyTime">8</b>s</div>
         <div id="coach" class="coach hidden" role="status"><b id="coachTitle"></b><span id="coachText"></span></div>
         <div id="countdown" class="countdown hidden" aria-live="assertive"><span id="countdownNum">3</span></div>
       </div>
@@ -79,21 +96,20 @@
 
   <div class="overlay" id="menuOverlay">
     <div class="sheet menu-sheet">
-      <div class="menu-logo"><span class="logo-hex big">K</span><div>KEY<span>CLASH</span></div></div>
+      <div class="menu-logo"><svg class="logo-mark big" viewBox="0 0 64 64" aria-hidden="true"><path class="mark-hex" d="M32 3 58 18v28L32 61 6 46V18Z"/><g transform="rotate(-18 25 31)"><rect class="mark-key mark-blue" x="14" y="21" width="22" height="19" rx="4"/><path class="mark-glyph" d="M20 26v9m0-5h6m0-4v9"/></g><g transform="rotate(18 39 35)"><rect class="mark-key mark-coral" x="29" y="27" width="22" height="19" rx="4"/><path class="mark-glyph" d="M35 32v9m0-5h6m0-4v9"/></g><path class="mark-spark" d="m32 18 2.5 6 6 2.5-6 2.5-2.5 6-2.5-6-6-2.5 6-2.5Z"/></svg><div>KEY<span>CLASH</span><small>WORDS WIN GROUND</small></div></div>
       <p class="menu-sub">Type the words on the map to take it.</p>
       <p class="device-note">Keyclash is built for a physical keyboard. It plays best on a computer.</p>
-      <button id="playBtn" class="btn btn-gold btn-huge" type="button">Play</button>
+      <div class="menu-modes">
+        <button id="friendBtn" class="btn mode-card mode-primary" type="button"><span class="mode-icon">↗</span><span><b>Play a friend</b><small>Create a room or join by link. No account.</small></span><span class="mode-arrow">→</span></button>
+        <button id="playBtn" class="btn mode-card" type="button"><span class="mode-icon">⚔</span><span><b>Quick battle vs Nova</b><small>Practice a full match against the bot</small></span><span class="mode-arrow">→</span></button>
+        <button id="dailyBtn" class="btn mode-card" type="button"><span class="mode-icon">▦</span><span><b id="dailyTitle">Daily island</b><small id="dailySub">Same map for everyone</small></span><span class="mode-arrow">→</span></button>
+      </div>
       <div class="pace" role="radiogroup" aria-label="Bot pace">
-        <span>Bot pace</span>
+        <span>Nova's pace</span>
         <button type="button" role="radio" data-level="chill">Chill</button>
         <button type="button" role="radio" data-level="steady">Steady</button>
         <button type="button" role="radio" data-level="fierce">Fierce</button>
-      </div>
-      <div class="menu-row">
-        <button id="dailyBtn" class="btn btn-card" type="button"><span class="card-icon">📅</span><span><b id="dailyTitle">Daily battle</b><small id="dailySub">Same map for everyone</small></span></button>
-        <button id="friendBtn" class="btn btn-card" type="button"><span class="card-icon">🤝</span><span><b>Play a friend</b><small>Share a room code</small></span></button>
-      </div>
-      <div id="menuRecord" class="menu-record"></div>
+      </div>      <div id="menuRecord" class="menu-record"></div>
     </div>
   </div>
 
@@ -101,6 +117,7 @@
     <div class="sheet room-sheet">
       <button class="close-btn" id="closeRoom" type="button" aria-label="Close">×</button>
       <h2>Play a friend</h2>
+      <p class="room-intro">Create a room and send your friend the invite link, or join with their 5-letter code. No account needed.</p>
       <label class="field-label" for="playerName">Your name</label>
       <input class="text-input" id="playerName" maxlength="18" autocomplete="nickname">
       <button id="createRoom" class="btn btn-gold btn-wide" type="button">Create a room</button>
@@ -155,6 +172,7 @@
         <li><span>🔥</span><p><b>Keep a chain</b> by typing a word every 3 seconds. At 3 you hit twice as hard, at 6 each capture spills onto open land.</p></li>
         <li><span>🏰</span><p><b>Stay connected.</b> Land cut off from your castle scores nothing. Castles can't fall.</p></li>
         <li><span>💰</span><p><b>Grab bounties</b> for 2 extra points that stay with the hex. Every 5 words earns an <b>airdrop 🪂</b> that takes open land two steps away in one word.</p></li>
+        <li><span>✦</span><p><b>Check the round contract.</b> It gives both players the same bonus target, like supplied shrines, connected land, or enemy ground you can hold.</p></li>
       </ul>
       <button id="gotIt" class="btn btn-gold btn-wide" type="button">Got it</button>
     </div>

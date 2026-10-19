@@ -9,6 +9,12 @@ export const BLITZ_SPREAD = 2;
 export const STRIKES_PER_AIRDROP = 5;
 export const MAX_AIRDROPS = 2;
 
+export const CONTRACTS = [
+  { id: 'relic-run', name: 'Relic Run', icon: '✦', description: 'Supply shrine hexes for +2 each. Both shrines are marked in gold.', detail: 'Each supplied shrine adds 2 points (max +4).' },
+  { id: 'supply-web', name: 'Supply Web', icon: '⌘', description: 'Grow a connected network. Every 5 supplied hexes beyond your capital adds +1.', detail: 'Every 5 supplied hexes beyond your capital adds 1 point (max +4).' },
+  { id: 'breakthrough', name: 'Breakthrough', icon: '⚔', description: 'Take ground from your rival and keep it supplied for +2 each.', detail: 'Each supplied hex taken from the rival adds 2 points (max +6).' }
+];
+
 const BOUNTY_LENGTH = 8_000;
 const FIRST_BOUNTY = 8_000;
 const BOUNTY_INTERVAL = 12_000;
@@ -109,6 +115,7 @@ export function createGame({ seed = Math.floor(Math.random() * 2 ** 32), startAt
   const game = {
     map: mapIndex,
     seed: seed >>> 0,
+    contract: null,
     tiles: [],
     startedAt: startAt,
     endsAt: startAt + DURATION,
@@ -132,6 +139,7 @@ export function createGame({ seed = Math.floor(Math.random() * 2 ** 32), startAt
     game.tiles.push(tile);
     tile.word = terrain.tier ? pickWord(game, terrain.tier) : '';
   }
+  game.contract = Math.floor(nextRandom(game) * CONTRACTS.length);
   return game;
 }
 
@@ -226,8 +234,14 @@ export function score(game) {
   return [0, 1].map(player => {
     const linked = supplied(game, player);
     const owned = game.tiles.filter(t => t.owner === player);
-    const points = owned.filter(t => linked.has(t.id)).reduce((sum, t) => sum + TERRAIN[t.terrain].points + t.bounty, 0);
-    return { points, tiles: owned.length, cutOff: owned.length - linked.size };
+    const connected = owned.filter(t => linked.has(t.id));
+    const terrainPoints = connected.reduce((sum, t) => sum + TERRAIN[t.terrain].points + t.bounty, 0);
+    const contract = CONTRACTS[game.contract] ?? CONTRACTS[0];
+    let contractBonus = 0;
+    if (contract.id === 'relic-run') contractBonus = Math.min(4, connected.filter(t => t.terrain === 'shrine').length * 2);
+    if (contract.id === 'supply-web') contractBonus = Math.min(4, Math.floor(Math.max(0, linked.size - 1) / 5));
+    if (contract.id === 'breakthrough') contractBonus = Math.min(6, connected.filter(t => t.capturedBy === player).length * 2);
+    return { points: terrainPoints + contractBonus, terrainPoints, contractBonus, tiles: owned.length, cutOff: owned.length - linked.size };
   });
 }
 
@@ -280,7 +294,9 @@ function extendChain(game, player, now) {
 }
 
 function seize(game, tile, player, now) {
+  const capturedFromRival = tile.owner === 1 - player;
   tile.owner = player;
+  tile.capturedBy = capturedFromRival ? player : -1;
   tile.strength = 1;
   tile.changedAt = now;
   game.captures[player]++;

@@ -1,11 +1,10 @@
-# Keyclash
+# KEYCLASH
 
-A typing war game. Each hex on the island map has a word on it. Type a word next to your land to march on it, break the enemy's lines, and hold the most valuable ground when the 60-second clock runs out.
+A typing strategy game. Type words to capture valuable hexes, stay supplied, and chase a shared round contract while your rival races you to the same ground. Most points after 60 seconds wins.
 
-**Play online:** https://keyclash-arena.clownprinc.chatgpt.site — create a room and share its invite link. Anyone with the link can play.
+**Play online:** https://keyclash-arena.clownprinc.chatgpt.site/ - create a room and share its invite link. Anyone with the link can play.
 
-Play a quick battle against the bot Nova (chill, steady, or fierce), the daily battle (the same seeded map for everyone, with a streak and a shareable result), or a live 1v1 room with a friend.
-
+Choose a quick battle against Nova, the daily island (one shared seed and a shareable result), or a live 1v1 room with a friend. Three shared round contracts change which route is valuable. No account needed; a physical keyboard works best.
 ## Run
 
 Requires Node.js 20 or newer. No dependencies.

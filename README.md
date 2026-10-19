@@ -4,7 +4,7 @@ A typing strategy game. Type words to capture valuable hexes, stay supplied, and
 
 **Play online:** https://keyclash-arena.clownprinc.chatgpt.site/ - create a room and share its invite link. Anyone with the link can play.
 
-Choose a quick battle against Nova, the daily island (one shared seed and a shareable result), or a live 1v1 room with a friend. Three shared round contracts change which route is valuable. No account needed; a physical keyboard works best.
+Choose one of three maps and a commander, then start a quick battle against Nova, the daily island (one shared seed and a shareable result), or a live 1v1 room with a friend. The room host picks the map; each player chooses their own commander. Rematches rotate the map. Three shared round contracts change which route is valuable. No account needed; a physical keyboard works best.
 ## Run
 
 Requires Node.js 20 or newer. No dependencies.
@@ -24,12 +24,12 @@ npm test
 ## Rules
 
 - Start typing any word with a white outline. Matching hexes light up as you type, and the word fires the moment it is complete. Clicking a hex locks onto it; Esc clears.
-- Hexes have strength (the dots). Each word knocks off 1. When it hits 0 the hex is yours, and every hit swaps in a new word.
-- Typing a word on your own border hex adds 1 strength (max 3).
+- Hexes have strength (the dots). A normal word knocks off 1; a chain or Vanguard can hit harder. When strength hits 0 the hex is yours, and every hit swaps in a new word.
+- Typing a word on your own border hex adds 1 strength (max 3). The Warden commander adds 2, up to 4.
 - **Chain:** type a word within 3 seconds of the last one. At 3 your words hit for 2 (Rally). At 6, captures also take up to 2 open neighbouring hexes (Blitz).
 - **Supply:** land that isn't connected to your castle scores nothing. Castles can't be taken.
 - Plains 1 point, forest 2, mountain 3 (starts at strength 2), shrine 4. A bounty hex appears every 12 seconds; capturing it adds 2 points that stay with the hex.
-- Every 5 words earns an airdrop (max 2): take open land two hexes away in one word, behind enemy lines.
+- Commander styles have one visible tradeoff: Vanguard hits enemy hexes harder but earns airdrops every 6 strikes; Quartermaster earns them every 4; Warden reinforces faster and also earns them every 6. The standard rate is every 5 strikes. Airdrops (max 2) take open land two hexes away in one word.
 - Most points at the end wins. Hex count breaks a tie.
 
 ## Code map

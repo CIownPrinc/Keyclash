@@ -55,6 +55,13 @@ test('clients never receive the seed that decides future words', async () => {
   assert.equal(guest.game.seed, null);
 });
 
+test('friend rooms apply the host map and each player\'s commander', async () => {
+  const host = await request('/api/create', { name: 'Host', map: 2, commander: 'warden' });
+  const guest = await request('/api/join', { code: host.value.code, name: 'Guest', commander: 'quartermaster' });
+  assert.equal(guest.value.game.map, 2);
+  assert.deepEqual(guest.value.game.commanders, ['warden', 'quartermaster']);
+});
+
 test('strikes faster than a human can type are refused', async () => {
   const { host, guest } = await openRoom();
   const first = targetTiles(guest.game, 0, guest.now)[0];

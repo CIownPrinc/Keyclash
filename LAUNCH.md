@@ -2,13 +2,13 @@
 
 **Play:** https://keyclash-arena.clownprinc.chatgpt.site/
 
-KEYCLASH is a free, browser-based typing strategy game. Each word captures a tile on a shared hex map. Expand, stay supplied, keep a chain alive, and chase the round contract while your rival does the same. Matches last 60 seconds. Play a friend with a room link, practice against Nova, or try the daily island. No account needed; a physical keyboard works best.
+KEYCLASH is a free, browser-based typing strategy game. Choose a commander and one of three maps, then type to capture hexes, stay supplied, keep a chain alive, and chase a shared round contract. Matches last 60 seconds. Challenge a friend with a room link, practice against Nova, or try the daily island. No account needed; a physical keyboard works best.
 
 ## Post for X
 
-I built KEYCLASH: a typing game where every word takes territory.
+I built KEYCLASH: a typing game where every word takes territory. Pick a commander, choose a map, and challenge a friend to a 60-second strategy battle.
 
-Capture hexes, keep your chain alive, choose your route to the round objective, and beat a friend in 60 seconds. Play solo or send someone a room link.
+Capture hexes, keep your chain alive, choose your route to the round objective, and outplay a rival. Play solo or send someone a room link.
 
 Try it: https://keyclash-arena.clownprinc.chatgpt.site/
 

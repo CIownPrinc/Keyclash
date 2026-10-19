@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
-import { createGame, strike, finish, advance, COUNTDOWN } from './game.js';
+import { createGame, strike, finish, advance, COUNTDOWN, MAPS, COMMANDERS } from './game.js';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 const rooms = new Map();
@@ -82,13 +82,14 @@ function code() {
   do { value = crypto.randomBytes(3).toString('hex').slice(0, 5).toUpperCase(); } while (rooms.has(value));
   return value;
 }
-function addPlayer(room, name) {
-  const player = { name: cleanName(name), token: crypto.randomUUID(), lastSeen: Date.now(), lastStrikeAt: 0 };
+function addPlayer(room, name, commander) {
+  const player = { name: cleanName(name), commander: COMMANDERS.some(c => c.id === commander) ? commander : 'vanguard', token: crypto.randomUUID(), lastSeen: Date.now(), lastStrikeAt: 0 };
   room.players.push(player);
   return player;
 }
 function startMatch(room) {
-  room.game = createGame({ startAt: Date.now() + countdown });
+  const map = Number.isInteger(room.map) ? (room.map + room.match) % MAPS.length : undefined;
+  room.game = createGame({ startAt: Date.now() + countdown, map, commanders: room.players.map(p => p.commander) });
   room.match++;
   room.rematch.clear();
 }
@@ -104,8 +105,8 @@ async function createRoom(req, res) {
   limitRate(req);
   if (rooms.size >= MAX_ROOMS) throw new HttpError(503, 'The arena is full right now. Try again in a few minutes.');
   const data = await body(req);
-  const room = { code: code(), players: [], game: null, match: 0, rematch: new Set(), lastActivity: Date.now() };
-  const host = addPlayer(room, data.name);
+  const room = { code: code(), players: [], game: null, match: 0, rematch: new Set(), lastActivity: Date.now(), map: Number.isInteger(data.map) ? ((data.map % MAPS.length) + MAPS.length) % MAPS.length : 0 };
+  const host = addPlayer(room, data.name, data.commander);
   rooms.set(room.code, room);
   json(res, 200, { ...state(room), token: host.token, player: 0 });
 }
@@ -115,7 +116,7 @@ async function joinRoom(req, res) {
   const room = rooms.get(String(data.code || '').toUpperCase());
   if (!room) throw new HttpError(404, 'Room not found. Check the code with your friend.');
   if (room.players.length === 2) throw new HttpError(409, 'This room is full.');
-  const guest = addPlayer(room, data.name);
+  const guest = addPlayer(room, data.name, data.commander);
   startMatch(room);
   json(res, 200, { ...state(room), token: guest.token, player: 1 });
 }

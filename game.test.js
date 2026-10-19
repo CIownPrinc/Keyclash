@@ -37,6 +37,35 @@ test('the same seed always builds the same battlefield', () => {
   assert.deepEqual(createGame({ seed: 7, startAt: 0 }).tiles, createGame({ seed: 7, startAt: 0 }).tiles);
 });
 
+test('commander styles change attacks, drops, and frontline reinforcement', () => {
+  const vanguard = createGame({ seed: 4, startAt: START, commanders: ['quartermaster', 'vanguard'] });
+  const rivalHex = neighborOf(vanguard, capitalOf(vanguard, 0));
+  vanguard.tiles[rivalHex].owner = 0;
+  vanguard.tiles[rivalHex].strength = 2;
+  vanguard.tiles[rivalHex].changedAt = START;
+  const adjacent = neighbors(vanguard, rivalHex).find(id => vanguard.tiles[id].owner === -1 && vanguard.tiles[id].terrain !== 'capital');
+  vanguard.tiles[adjacent].owner = 1;
+  assert.equal(hit(vanguard, rivalHex, 1, START + 2000).kind, 'steal');
+
+  const quartermaster = createGame({ seed: 5, startAt: START, commanders: ['quartermaster', 'vanguard'] });
+  const farm = neighborOf(quartermaster, capitalOf(quartermaster, 0));
+  quartermaster.tiles[farm].strength = 99;
+  for (let i = 0; i < 4; i++) hit(quartermaster, farm, 0, START + 10 + i * 5000);
+  assert.equal(quartermaster.airdrops[0], 1);
+
+  const warden = createGame({ seed: 6, startAt: START, commanders: ['warden', 'vanguard'] });
+  const fort = neighborOf(warden, capitalOf(warden, 0));
+  warden.tiles[fort].owner = 0;
+  warden.tiles[fort].strength = 1;
+  warden.tiles[fort].changedAt = START;
+  const enemy = neighbors(warden, fort).find(id => warden.tiles[id].owner === -1 && warden.tiles[id].terrain !== 'capital');
+  warden.tiles[enemy].owner = 1;
+  hit(warden, fort, 0, START + 2000);
+  assert.equal(warden.tiles[fort].strength, 3);
+  hit(warden, fort, 0, START + 3000);
+  assert.equal(warden.tiles[fort].strength, 4);
+});
+
 test('nothing can be struck before the countdown ends', () => {
   const game = fresh();
   const target = neighborOf(game, capitalOf(game, 0));

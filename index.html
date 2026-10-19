@@ -5,17 +5,17 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#16314d">
   <title>KEYCLASH — Words win ground</title>
-  <meta name="description" content="A fast typing strategy game. Capture hexes, chase a shared round objective, and beat a friend in 60 seconds.">
+  <meta name="description" content="Pick your commander, choose a map, and type to take ground in a 60-second strategy battle. Challenge a friend or play solo.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://keyclash-arena.clownprinc.chatgpt.site/">
   <meta property="og:title" content="KEYCLASH — Words win ground">
-  <meta property="og:description" content="Type to command the map. Make a plan. Beat your friend in 60 seconds.">
+  <meta property="og:description" content="Choose a commander, pick a map, and beat a friend at a typing strategy game in 60 seconds.">
   <meta property="og:image" content="https://keyclash-arena.clownprinc.chatgpt.site/share-card.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="KEYCLASH — Words win ground">
-  <meta name="twitter:description" content="Capture hexes, chase the round objective, and beat a friend in 60 seconds.">
+  <meta name="twitter:description" content="Choose a commander, pick a map, and beat a friend at a typing strategy game in 60 seconds.">
   <meta name="twitter:image" content="https://keyclash-arena.clownprinc.chatgpt.site/share-card.png">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="stylesheet" href="/style.css">
@@ -61,7 +61,7 @@
     <section id="contractStrip" class="contract-strip" aria-label="Round objective">
       <span id="contractIcon" class="contract-icon" aria-hidden="true">✦</span>
       <span class="contract-copy"><b id="contractName">Relic Run</b><small id="contractDescription"></small></span>
-      <span class="contract-tag">ROUND CONTRACT</span>
+      <span class="contract-tag"><b id="matchMapName">Twin Isles</b> · ROUND CONTRACT</span>
     </section>
 
     <main class="field-wrap">
@@ -94,11 +94,13 @@
     </section>
   </div>
 
-  <div class="overlay" id="menuOverlay">
+  <main class="home-screen" id="menuOverlay">
     <div class="sheet menu-sheet">
       <div class="menu-logo"><svg class="logo-mark big" viewBox="0 0 64 64" aria-hidden="true"><path class="mark-hex" d="M32 3 58 18v28L32 61 6 46V18Z"/><g transform="rotate(-18 25 31)"><rect class="mark-key mark-blue" x="14" y="21" width="22" height="19" rx="4"/><path class="mark-glyph" d="M20 26v9m7-9-7 4.5 7 4.5"/></g><g transform="rotate(18 39 35)"><rect class="mark-key mark-coral" x="29" y="27" width="22" height="19" rx="4"/><path class="mark-glyph" d="M43 29.5C41.7 27.8 39.9 27 38 27c-3.5 0-6 3-6 6.5s2.5 6.5 6 6.5c1.9 0 3.7-.8 5-2.5"/></g><path class="mark-spark" d="m32 18 2.5 6 6 2.5-6 2.5-2.5 6-2.5-6-6-2.5 6-2.5Z"/></svg><div>KEY<span>CLASH</span><small>WORDS WIN GROUND</small></div></div>
-      <p class="menu-sub">Type the words on the map to take it.</p>
+      <p class="menu-sub">Type fast. Think faster. Take the map.</p>
       <p class="device-note">Keyclash is built for a physical keyboard. It plays best on a computer.</p>
+      <section class="commander-pick" aria-labelledby="commanderHeading"><div class="section-label"><b id="commanderHeading">Choose your commander</b><small>One edge. One tradeoff. Pick your style.</small></div><div class="commander-options" id="commanderOptions"></div></section>
+      <div class="map-pick"><div class="map-copy"><div><button id="mapPrev" class="map-arrow" type="button" aria-label="Previous map">‹</button><span class="map-chip">BATTLE MAP <b id="mapTitle">Twin Isles</b></span><button id="mapNext" class="map-arrow" type="button" aria-label="Next map">›</button></div><small id="mapCaption">Balanced shores and a contested center</small></div><div id="mapPreview" class="map-preview" role="img" aria-label="Map preview"></div></div>
       <div class="menu-modes">
         <button id="friendBtn" class="btn mode-card mode-primary" type="button"><span class="mode-icon">↗</span><span><b>Play a friend</b><small>Create a room or join by link. No account.</small></span><span class="mode-arrow">→</span></button>
         <button id="playBtn" class="btn mode-card" type="button"><span class="mode-icon">⚔</span><span><b>Quick battle vs Nova</b><small>Practice a full match against the bot</small></span><span class="mode-arrow">→</span></button>
@@ -111,13 +113,13 @@
         <button type="button" role="radio" data-level="fierce">Fierce</button>
       </div>      <div id="menuRecord" class="menu-record"></div>
     </div>
-  </div>
+  </main>
 
   <div class="overlay hidden" id="roomOverlay">
     <div class="sheet room-sheet">
       <button class="close-btn" id="closeRoom" type="button" aria-label="Close">×</button>
       <h2>Play a friend</h2>
-      <p class="room-intro">Create a room and send your friend the invite link, or join with their 5-letter code. No account needed.</p>
+      <p class="room-intro">Create a room to set the map. Each player brings a commander. Join with an invite link or 5-letter code. No account needed.</p>
       <label class="field-label" for="playerName">Your name</label>
       <input class="text-input" id="playerName" maxlength="18" autocomplete="nickname">
       <button id="createRoom" class="btn btn-gold btn-wide" type="button">Create a room</button>
@@ -133,7 +135,7 @@
   <div class="overlay hidden" id="waitingOverlay">
     <div class="sheet wait-sheet">
       <h2>Waiting for your rival</h2>
-      <p>Send them this code or the link. The battle starts when they join.</p>
+      <p id="waitSummary">Send them this code or the link. The battle starts when they join.</p>
       <div id="codeDisplay" class="code-display">-----</div>
       <button id="copyCode" class="btn btn-gold btn-wide" type="button">Copy invite link</button>
       <button id="cancelWait" class="link-btn" type="button">Leave room</button>
@@ -171,8 +173,9 @@
         <li><span>🛡️</span><p><b>Dots mean strength.</b> Strong hexes take a few words. Type your own border words to dig in.</p></li>
         <li><span>🔥</span><p><b>Keep a chain</b> by typing a word every 3 seconds. At 3 you hit twice as hard, at 6 each capture spills onto open land.</p></li>
         <li><span>🏰</span><p><b>Stay connected.</b> Land cut off from your castle scores nothing. Castles can't fall.</p></li>
-        <li><span>💰</span><p><b>Grab bounties</b> for 2 extra points that stay with the hex. Every 5 words earns an <b>airdrop 🪂</b> that takes open land two steps away in one word.</p></li>
+        <li><span>💰</span><p><b>Grab bounties</b> for 2 extra points that stay with the hex. Your commander earns an <b>airdrop 🪂</b> every 4, 5, or 6 words; it takes open land two steps away.</p></li>
         <li><span>✦</span><p><b>Check the round contract.</b> It gives both players the same bonus target, like supplied shrines, connected land, or enemy ground you can hold.</p></li>
+        <li><span>♟</span><p><b>Your commander shapes your army.</b> Vanguard hits enemy ground harder, Quartermaster earns air drops faster, and Warden builds tougher frontline hexes.</p></li>
       </ul>
       <button id="gotIt" class="btn btn-gold btn-wide" type="button">Got it</button>
     </div>

@@ -8,6 +8,12 @@ export const BLITZ_CHAIN = 6;
 export const BLITZ_SPREAD = 2;
 export const STRIKES_PER_AIRDROP = 5;
 export const MAX_AIRDROPS = 2;
+export const COMMANDERS = [
+  { id: 'vanguard', name: 'Vanguard', icon: '⚔', description: 'Break enemy lines: +1 damage to rival hexes. Airdrops every 6 words.', tradeoff: 'Fewer supply drops' },
+  { id: 'quartermaster', name: 'Quartermaster', icon: '📦', description: 'Keep the front moving: earn airdrops every 4 words instead of 5.', tradeoff: 'No attack bonus' },
+  { id: 'warden', name: 'Warden', icon: '🛡', description: 'Hold the line: reinforcements add 2 strength, up to 4. Airdrops every 6 words.', tradeoff: 'Fewer supply drops' }
+];
+export const commanderOf = (game, player) => COMMANDERS.find(c => c.id === game.commanders?.[player]) ?? COMMANDERS[0];
 
 export const CONTRACTS = [
   { id: 'relic-run', name: 'Relic Run', icon: '✦', description: 'Supply shrine hexes for +2 each. Both shrines are marked in gold.', detail: 'Each supplied shrine adds 2 points (max +4).' },
@@ -110,10 +116,11 @@ function pickWord(game, tier) {
 
 // ---------- setup ----------
 
-export function createGame({ seed = Math.floor(Math.random() * 2 ** 32), startAt = Date.now(), map } = {}) {
+export function createGame({ seed = Math.floor(Math.random() * 2 ** 32), startAt = Date.now(), map, commanders = [] } = {}) {
   const mapIndex = map ?? seed % MAPS.length;
   const game = {
     map: mapIndex,
+    commanders: [0, 1].map(p => COMMANDERS.some(c => c.id === commanders[p]) ? commanders[p] : null),
     seed: seed >>> 0,
     contract: null,
     tiles: [],
@@ -194,7 +201,7 @@ export function isAirdrop(game, id, player) {
 export function actionFor(game, id, player, now = Date.now()) {
   const tile = game.tiles[id];
   if (!tile || !isLive(game, now) || isCapital(game, id)) return null;
-  if (tile.owner === player) return isFrontline(game, id) && tile.strength < MAX_STRENGTH ? 'reinforce' : null;
+  if (tile.owner === player) return isFrontline(game, id) && tile.strength < (game.commanders?.[player] === 'warden' ? MAX_STRENGTH + 1 : MAX_STRENGTH) ? 'reinforce' : null;
   if (isProtected(game, id, now)) return null;
   return touches(game, id, player) || isAirdrop(game, id, player) ? 'attack' : null;
 }
@@ -328,10 +335,11 @@ export function strike(game, id, player, answer, now = Date.now()) {
   const chain = extendChain(game, player, now);
   const previousOwner = tile.owner;
   let kind = 'reinforce', spread = [], bounty = false;
-  if (action === 'reinforce') tile.strength++;
+  if (action === 'reinforce') tile.strength = Math.min(game.commanders?.[player] === 'warden' ? MAX_STRENGTH + 1 : MAX_STRENGTH, tile.strength + (game.commanders?.[player] === 'warden' ? 2 : 1));
   else {
     // An airdrop lands with no supply line behind it, so it takes the hex in one go or not at all.
-    tile.strength -= airdrop ? tile.strength : chain >= RALLY_CHAIN ? 2 : 1;
+    const commanderBonus = game.commanders?.[player] === 'vanguard' && tile.owner === 1 - player ? 1 : 0;
+    tile.strength -= airdrop ? tile.strength : (chain >= RALLY_CHAIN ? 2 : 1) + commanderBonus;
     kind = 'hit';
     if (tile.strength <= 0) {
       kind = previousOwner === -1 ? 'capture' : 'steal';
@@ -342,7 +350,9 @@ export function strike(game, id, player, answer, now = Date.now()) {
   }
   tile.word = pickWord(game, TERRAIN[tile.terrain].tier);
   game.strikes[player]++;
-  if (game.strikes[player] % STRIKES_PER_AIRDROP === 0) game.airdrops[player] = Math.min(MAX_AIRDROPS, game.airdrops[player] + 1);
+  const commander = game.commanders?.[player];
+  const dropEvery = commander === 'quartermaster' ? 4 : commander === 'vanguard' || commander === 'warden' ? 6 : STRIKES_PER_AIRDROP;
+  if (game.strikes[player] % dropEvery === 0) game.airdrops[player] = Math.min(MAX_AIRDROPS, game.airdrops[player] + 1);
   log(game, { id, player, kind, chain, spread, bounty, airdrop, from: previousOwner, at: now });
   game.revision++;
   return { ok: true, kind, chain, spread, bounty };

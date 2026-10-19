@@ -1,6 +1,6 @@
 import {
   createGame, strike, actionFor, isAirdrop, matchingTiles, normalize, score, supplied, finish, advance, chainAt, CONTRACTS,
-  hasBounty, nextRandom, TERRAIN, DURATION, COUNTDOWN, CHAIN_WINDOW, RALLY_CHAIN, BLITZ_CHAIN, STRIKES_PER_AIRDROP
+  hasBounty, nextRandom, TERRAIN, DURATION, COUNTDOWN, CHAIN_WINDOW, RALLY_CHAIN, BLITZ_CHAIN, STRIKES_PER_AIRDROP, COMMANDERS, MAPS
 } from './game.js';
 import { createBattlefield } from './map.js';
 import { planBotMove, BOT_LEVELS } from './bot.js';
@@ -24,6 +24,8 @@ const COACH = {
   cutoff: ['Cut off', 'Land that is not linked to your castle scores nothing. Reconnect it.']
 };
 
+let selectedMap = 0;
+let selectedCommander = 'vanguard';
 const prefs = loadPrefs();
 const battlefield = createBattlefield({ svg: $('map'), overlay: $('fx'), onSelect: lockOn });
 let game = createGame({ seed: dailyInfo().seed, startAt: Date.now() });
@@ -68,6 +70,8 @@ function loadPrefs() {
   try { stored = JSON.parse(localStorage.getItem('keyclash') || '{}'); } catch { /* start fresh */ }
   const prefs = { ...DEFAULT_PREFS, ...stored };
   prefs.seen = Array.isArray(stored.seen) ? [...stored.seen] : [];
+  if (Number.isInteger(prefs.map)) selectedMap = ((prefs.map % MAPS.length) + MAPS.length) % MAPS.length;
+  if (COMMANDERS.some(c => c.id === prefs.commander)) selectedCommander = prefs.commander;
   return prefs;
 }
 function savePrefs() {
@@ -169,6 +173,7 @@ function renderContract() {
   setText('contractIcon', contract.icon);
   setText('contractName', contract.name);
   setText('contractDescription', contract.description);
+  setText('matchMapName', MAPS[game.map]?.name ?? MAPS[0].name);
   $('contractStrip').classList.toggle('hidden', mode === 'preview' || (mode === 'online' && match === 0));
 }
 
@@ -180,7 +185,8 @@ function renderHud() {
     const scoreEl = $(`score${side}`);
     if (scoreEl.textContent !== String(scores[p].points)) { scoreEl.textContent = scores[p].points; restart(scoreEl, 'bump'); }
     const away = mode === 'online' && room?.players?.length === 2 && room?.connected && !room.connected[p];
-    const note = away ? 'Disconnected' : scores[p].cutOff ? `${scores[p].cutOff} cut off!` : mode === 'preview' ? ' ' : `${scores[p].tiles} ${scores[p].tiles === 1 ? 'hex' : 'hexes'}`;
+    const commander = COMMANDERS.find(c => c.id === game.commanders?.[p])?.name ?? 'Vanguard';
+    const note = away ? 'Disconnected' : mode === 'preview' ? ' ' : scores[p].cutOff ? `${commander} · ${scores[p].cutOff} cut off` : `${commander} · ${scores[p].tiles} hexes`;
     setText(`note${side}`, note);
     $(`tug${side}`).style.flexGrow = String(Math.max(1, scores[p].points));
   });
@@ -190,7 +196,8 @@ function renderHud() {
   if (live() && scores[player].cutOff) coach('cutoff');
   const drops = game.airdrops[player];
   $('dropIcons').querySelectorAll('i').forEach((icon, i) => icon.classList.toggle('ready', i < drops));
-  setText('dropLabel', drops ? `${drops} airdrop${drops > 1 ? 's' : ''}` : wordsToGo(STRIKES_PER_AIRDROP - game.strikes[player] % STRIKES_PER_AIRDROP));
+  const dropEvery = game.commanders?.[player] === 'quartermaster' ? 4 : game.commanders?.[player] ? 6 : STRIKES_PER_AIRDROP;
+  setText('dropLabel', drops ? `${drops} airdrop${drops > 1 ? 's' : ''}` : wordsToGo(dropEvery - game.strikes[player] % dropEvery));
   if (drops && live()) coach('airdrop');
 }
 
@@ -497,6 +504,7 @@ function startOnlineMatch(data) {
   clearEntry();
   resetCoach();
   hideOverlays();
+  document.body.classList.remove('home-view');
   game = data.game;
   adoptGame(data.game);
 }
@@ -556,6 +564,7 @@ function forgetSeat() {
 function showWaiting(code) {
   setText('codeDisplay', code);
   setText('copyCode', 'Copy invite link');
+  setText('waitSummary', `${MAPS[selectedMap].name} · ${COMMANDERS.find(c => c.id === selectedCommander)?.name} commander · battle starts when they join.`);
   hideOverlays();
   show('waitingOverlay');
   render();
@@ -610,13 +619,16 @@ function startBattle(kind) {
   stats = { chars: 0, typos: 0 };
   botLevel = kind === 'daily' ? 'steady' : prefs.played === 0 ? 'chill' : prefs.level;
   const seed = kind === 'daily' ? daily.seed : undefined;
-  game = createGame({ seed, startAt: Date.now() + COUNTDOWN });
+  const commanderIndex = COMMANDERS.findIndex(c => c.id === selectedCommander);
+  const botCommander = COMMANDERS[(commanderIndex + 1 + ((seed ?? Date.now()) % 2)) % COMMANDERS.length].id;
+  game = createGame({ seed, map: kind === 'daily' ? undefined : selectedMap, commanders: [selectedCommander, botCommander], startAt: Date.now() + COUNTDOWN });
   lastSeq = game.seq;
   const botState = { seed: (kind === 'daily' ? daily.seed : Date.now()) ^ 0x9e3779b9 };
   botRandom = kind === 'daily' ? () => nextRandom(botState) : Math.random;
   room = null;
   clearEntry();
   hideOverlays();
+  document.body.classList.remove('home-view');
   hint(kind === 'daily' ? `Daily island #${daily.number}` : `${BOT_NAME} is on ${botLevel} pace`);
   input.disabled = true;
   render();
@@ -721,6 +733,26 @@ async function shareDaily() {
 // ---------- menu, rank, sound ----------
 
 function renderMenu() {
+  document.body.classList.add('home-view');
+  $('commanderOptions').replaceChildren(...COMMANDERS.map(commander => {
+    const button = document.createElement('button');
+    button.type = 'button'; button.className = 'commander-card';
+    button.setAttribute('aria-pressed', String(selectedCommander === commander.id));
+    button.innerHTML = `<span class="commander-icon" aria-hidden="true">${commander.icon}</span><b>${commander.name}</b><small>${commander.description}</small>`;
+    button.addEventListener('click', () => { selectedCommander = commander.id; prefs.commander = commander.id; savePrefs(); renderMenu(); });
+    return button;
+  }));
+  setText('mapTitle', MAPS[selectedMap].name);
+  setText('mapCaption', ['Balanced shores and a contested center', 'Short chokepoints around a risky central pass', 'Long mountain routes and shrine control'][selectedMap]);
+  const preview = $('mapPreview');
+  preview.style.gridTemplateColumns = `repeat(${MAPS[selectedMap].cols}, 19px)`;
+  preview.replaceChildren(...MAPS[selectedMap].cells.map(cell => {
+    const hex = document.createElement('i');
+    hex.className = `mini-hex ${cell.terrain}`;
+    hex.style.gridColumn = String(cell.col + 1); hex.style.gridRow = String(cell.row + 1);
+    if (cell.row % 2) hex.style.transform = 'translateX(9px)';
+    return hex;
+  }));
   document.querySelectorAll('.pace button').forEach(button => button.setAttribute('aria-checked', String(button.dataset.level === prefs.level)));
   const daily = dailyInfo();
   const doneToday = prefs.lastDaily === daily.key && prefs.daily;
@@ -774,13 +806,15 @@ $('playBtn').onclick = () => startBattle('bot');
 $('dailyBtn').onclick = () => startBattle('daily');
 $('friendBtn').onclick = () => { hide('menuOverlay'); show('roomOverlay'); $('playerName').focus(); };
 $('closeRoom').onclick = () => { hide('roomOverlay'); show('menuOverlay'); };
+$('mapPrev').onclick = () => { selectedMap = (selectedMap + MAPS.length - 1) % MAPS.length; prefs.map = selectedMap; savePrefs(); renderMenu(); };
+$('mapNext').onclick = () => { selectedMap = (selectedMap + 1) % MAPS.length; prefs.map = selectedMap; savePrefs(); renderMenu(); };
 document.querySelectorAll('.pace button').forEach(button => {
   button.onclick = () => { prefs.level = button.dataset.level; savePrefs(); renderMenu(); };
 });
 $('createRoom').onclick = async () => {
   setText('roomMessage', '');
   try {
-    const data = await api('/api/create', 'POST', { name: rememberName() });
+    const data = await api('/api/create', 'POST', { name: rememberName(), map: selectedMap, commander: selectedCommander });
     enterRoom(data);
     showWaiting(data.code);
     startPolling();
@@ -789,7 +823,7 @@ $('createRoom').onclick = async () => {
 $('joinRoom').onclick = async () => {
   setText('roomMessage', '');
   try {
-    const data = await api('/api/join', 'POST', { code: $('roomCode').value.trim().toUpperCase(), name: rememberName() });
+    const data = await api('/api/join', 'POST', { code: $('roomCode').value.trim().toUpperCase(), name: rememberName(), commander: selectedCommander });
     enterRoom(data);
     acceptRoom(data);
     startPolling();
